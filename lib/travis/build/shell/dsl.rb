@@ -9,8 +9,12 @@ module Travis
 
         def cmd(code, *args)
           options = args.last.is_a?(Hash) ? args.last : {}
+          #require 'byebug'; byebug
           node = Cmd.new(code, *merge_options(args))
-          options[:fold] ? fold(options[:fold]) { raw(node) } : raw(node)
+          timing = lambda {
+            options[:timing] && options[:echo] ? timing { raw(node) } : raw(node)
+          }
+          options[:fold] ? fold(options[:fold]) { timing.call } : timing.call
         end
 
         def raw(code, *args)
@@ -59,6 +63,14 @@ module Travis
           raw "echo -en 'travis_fold:start:#{name}\\r'"
           result = yield(self)
           raw "echo -en 'travis_fold:end:#{name}\\r'"
+          result
+        end
+
+        def timing(&block)
+          raw "echo -en 'travis_time:start:\\r'"
+          #require 'byebug'; byebug
+          result = yield(self)
+          raw "echo -en 'travis_time:end:`cat /tmp/timing.out`\\r'"
           result
         end
 
