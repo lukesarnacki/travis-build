@@ -53,7 +53,7 @@ module Travis
       def initialize(data, options)
         @data = Data.new({ config: self.class.defaults }.deep_merge(data.deep_symbolize_keys))
         @options = options
-        @stack = [Shell::Script.new(log: true, echo: true, log_file: logs[:build])]
+        @stack = [Shell::Script.new(log: true, echo: true, timing: true, log_file: logs[:build])]
       end
 
       def compile
@@ -89,7 +89,7 @@ module Travis
 
         def export
           data.env_vars.each do |var|
-            set var.key, var.value, echo: var.to_s
+            set var.key, var.value, echo: var.to_s, timing: false
           end
         end
 

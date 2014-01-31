@@ -1,6 +1,8 @@
 #!/bin/bash
 source /etc/profile
 
+TIMEFORMAT="u=%U:r=%E:s=%S"
+
 travis_start() {
   TRAVIS_STAGE=$1
   echo "[travis:$1:start]" <%= ">> #{logs[:state]}" if logs[:state] %>
@@ -9,6 +11,16 @@ travis_start() {
 travis_finish() {
   echo "[travis:$1:finish:result=$2]" <%= ">> #{logs[:state]}" if logs[:state] %>
   sleep 1
+}
+
+travis_time_start() {
+  echo -en "travis_time:start\r"
+}
+
+travis_time_finish() {
+  local result=$?
+  echo -en "travis_time:finish:`cat /tmp/timing.out`\r"
+  return $result
 }
 
 travis_assert() {
